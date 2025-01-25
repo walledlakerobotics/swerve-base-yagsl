@@ -14,6 +14,7 @@ import swervelib.SwerveDrive;
 
 import java.io.File;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -34,19 +35,36 @@ public class RobotContainer {
   private final CommandXboxController m_driverController =
       new CommandXboxController(OperatorConstants.kDriverControllerPort);
   private final SwerveSubsystem swerve = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
-                                                                         "swerve/modules"));
+                                                                         "swerve"));
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
 
     configureBindings();
+    
 
-    swerve.driveCommand(
-      ()->m_driverController.getLeftX(),
-      ()-> m_driverController.getLeftY(), 
-      ()->m_driverController.getRightX(), 
-      ()->m_driverController.getLeftY()
-    );
+    // Command driveFieldOrientedDirectAngle = swerve.driveCommand(
+    //     () -> MathUtil.applyDeadband(m_driverController.getLeftY(), .2) *.5,
+    //     () -> MathUtil.applyDeadband(m_driverController.getLeftX(), .2)*.5,
+    //     () -> MathUtil.applyDeadband(m_driverController.getRightX(), .2)*.5,
+    //     () -> MathUtil.applyDeadband(m_driverController.getRightY(), .2)*.5
+    // );
+
+    Command driveFieldOrientedDirectAngle = swerve.driveCommand(
+      () -> MathUtil.applyDeadband(m_driverController.getLeftY(), 0.1),
+      () -> MathUtil.applyDeadband(m_driverController.getLeftX(), 0.1),
+      () -> m_driverController.getRightX(),
+      () -> m_driverController.getRightY());
+      swerve.setDefaultCommand(driveFieldOrientedDirectAngle);
+    
+
+    // swerve.setDefaultCommand(swerve.driveCommand
+    // (
+    //   () -> MathUtil.applyDeadband(m_driverController.getLeftY(), .2) *.5,
+    //   () -> MathUtil.applyDeadband(m_driverController.getLeftX(), .2)*.5,
+    //   () -> MathUtil.applyDeadband(m_driverController.getRightX(), .2)*.5,
+    //   () -> MathUtil.applyDeadband(m_driverController.getRightY(), .2)*.5)
+    // );
   }
 
   /**

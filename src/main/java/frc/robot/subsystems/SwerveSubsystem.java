@@ -13,6 +13,7 @@ import frc.robot.Constants.SwerveConstants;
 import frc.robot.Constants.SwerveConstants;
 import swervelib.parser.SwerveParser;
 import swervelib.SwerveDrive;
+import swervelib.SwerveDriveTest;
 import swervelib.math.SwerveMath;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -23,7 +24,6 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class SwerveSubsystem extends SubsystemBase{
     SwerveDrive swerveDrive;
     public SwerveSubsystem(File dir){
-        File swerveJsonDir = new File(Filesystem.getDeployDirectory(), "swerve");
         try{
             swerveDrive = new SwerveParser(dir).createSwerveDrive(SwerveConstants.maxSpeed, SwerveConstants.driveConversionFactor, SwerveConstants.angleConversionFactor);
         }catch(Exception e){
@@ -36,8 +36,11 @@ public class SwerveSubsystem extends SubsystemBase{
     public void lockPose(){
         swerveDrive.lockPose();
     }
+    public void centerWheels(){
+        SwerveDriveTest.centerModules(swerveDrive);
+    }
 
-    public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier headingX, DoubleSupplier headingY)
+    public Command driveCommandToHeading(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier headingX, DoubleSupplier headingY)
     {
     return run(() -> {
 
@@ -52,7 +55,21 @@ public class SwerveSubsystem extends SubsystemBase{
                                                                       swerveDrive.getMaximumChassisVelocity()));
     });
   }
+  public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier headingX, DoubleSupplier headingY)
+{
+    return run(() -> {
 
+    Translation2d scaledInputs = SwerveMath.scaleTranslation(new Translation2d(translationX.getAsDouble(),
+                                                        translationY.getAsDouble()), 0.8);
+
+    // Make the robot move
+    swerveDrive.driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(), scaledInputs.getY(),
+                                            headingX.getAsDouble(),
+                                            headingY.getAsDouble(),
+                                            swerveDrive.getOdometryHeading().getRadians(),
+                                            swerveDrive.getMaximumChassisVelocity()));
+    });
+}
     
     
 }
