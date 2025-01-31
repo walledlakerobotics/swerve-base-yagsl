@@ -16,6 +16,7 @@ import java.io.File;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -42,7 +43,8 @@ public class RobotContainer {
 
     configureBindings();
     
-
+    // SmartDashboard.putNumber("Drive Conversion", Constants.SwerveConstants.driveConversionFactor);
+    // SmartDashboard.putNumber("Angle Conversion", Constants.SwerveConstants.angleConversionFactor);
     // Command driveFieldOrientedDirectAngle = swerve.driveCommand(
     //     () -> MathUtil.applyDeadband(m_driverController.getLeftY(), .2) *.5,
     //     () -> MathUtil.applyDeadband(m_driverController.getLeftX(), .2)*.5,
@@ -50,12 +52,11 @@ public class RobotContainer {
     //     () -> MathUtil.applyDeadband(m_driverController.getRightY(), .2)*.5
     // );
 
-    Command driveFieldOrientedDirectAngle = swerve.driveCommand(
+    Command driveCommand = swerve.driveCommand(
       () -> MathUtil.applyDeadband(m_driverController.getLeftY(), 0.1),
       () -> MathUtil.applyDeadband(m_driverController.getLeftX(), 0.1),
-      () -> m_driverController.getRightX(),
-      () -> m_driverController.getRightY());
-      swerve.setDefaultCommand(driveFieldOrientedDirectAngle);
+      () -> m_driverController.getRightX());
+      swerve.setDefaultCommand(driveCommand);
     
 
     // swerve.setDefaultCommand(swerve.driveCommand
@@ -80,6 +81,8 @@ public class RobotContainer {
     
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
+    m_driverController.b().whileTrue(Commands.runOnce(swerve::centerWheels, swerve).repeatedly());
+
     m_driverController.a().whileTrue(Commands.runOnce(swerve::lockPose, swerve).repeatedly());
     
   }

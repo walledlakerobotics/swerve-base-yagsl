@@ -55,21 +55,18 @@ public class SwerveSubsystem extends SubsystemBase{
                                                                       swerveDrive.getMaximumChassisVelocity()));
     });
   }
-  public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier headingX, DoubleSupplier headingY)
-{
+  public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX)
+  {
     return run(() -> {
-
-    Translation2d scaledInputs = SwerveMath.scaleTranslation(new Translation2d(translationX.getAsDouble(),
-                                                        translationY.getAsDouble()), 0.8);
-
-    // Make the robot move
-    swerveDrive.driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(), scaledInputs.getY(),
-                                            headingX.getAsDouble(),
-                                            headingY.getAsDouble(),
-                                            swerveDrive.getOdometryHeading().getRadians(),
-                                            swerveDrive.getMaximumChassisVelocity()));
+      // Make the robot move
+      swerveDrive.drive(new Translation2d(0.0,0.0),/*translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
+                                          translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()),*/
+                        angularRotationX.getAsDouble() * swerveDrive.getMaximumChassisAngularVelocity(),
+                        false,
+                        false);
     });
+  }
 }
     
     
-}
+
